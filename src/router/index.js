@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 // Import views
 import home_products from '../views/home_products.vue';
@@ -9,12 +9,12 @@ import TelegramSettings from '../views/TelegramSettings.vue'; // Telegram Settin
 
 const routes = [
   {
-    path: '/', 
+    path: '/',
     name: 'settings',
     component: TelegramSettings
   },
   {
-    path: '/home', // Moved home_products to /home
+    path: '/home',
     name: 'home_products',
     component: home_products
   },
@@ -36,32 +36,30 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(), // Use hash mode for GitHub Pages compatibility
   routes
 });
 
-// Clear localStorage every time the app starts (force settings reset)
+// Clear localStorage every time the app starts
 localStorage.removeItem('botToken');
 localStorage.removeItem('chatId');
 
-// Navigation Guard to Check Telegram Settings
+// Navigation Guard to enforce Telegram settings
 router.beforeEach((to, from, next) => {
   const botToken = localStorage.getItem('botToken');
   const chatId = localStorage.getItem('chatId');
 
   if (!botToken || !chatId) {
-    // Stay on settings page if settings are missing
     if (to.name !== 'settings') {
       return next({ name: 'settings' });
     }
   } else {
-    // Redirect from settings to home when settings are configured
     if (to.name === 'settings') {
       return next({ name: 'home_products' });
     }
   }
 
-  next(); // Proceed to the requested route
+  next();
 });
 
 export default router;
